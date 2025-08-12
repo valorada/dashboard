@@ -1,0 +1,2 @@
+# dashboard
+catalog dashboard
