@@ -19,11 +19,15 @@ function formatDescription(text) {
 }
 
 function renderDatasetDetails(ds) {
+  const link = pickDatasetUrl(ds);
   datasetDetailsEl.innerHTML = `
-    <p><strong>ID:</strong> ${ds.id}</p>
-    <p><strong>Name:</strong> ${ds.name}</p>
-    <div><strong>Description:</strong> ${formatDescription(ds.description)}</div>
-    <p><a href="${ds.url}" target="_blank" rel="noopener noreferrer">View dataset</a></p>
+    <p><strong>ID:</strong> ${safe(ds.id)}</p>
+    <p><strong>Name:</strong> ${safe(ds.name)}</p>
+    ${section('Description', formatDescription(ds.description))}
+    ${section('Source', formatDescription(ds.source))}
+    ${section('Citation', formatDescription(ds.citation))}
+    ${section('License', safe(ds.license))}
+    ${link ? `<p><a href="${link}" target="_blank" rel="noopener noreferrer">Open link</a></p>` : ''}
   `;
   selectedDatasetId = ds.id;
   updateHash();
@@ -31,7 +35,11 @@ function renderDatasetDetails(ds) {
 
 function renderDatasets(ind) {
   indicatorTitleEl.textContent = ind.indicator;
-  indicatorIdEl.textContent = `ID: ${ind.id}`;
+  const metaBits = [
+    ind.id ? `ID: ${ind.id}` : null,
+    ind.category ? `Category: ${ind.category}` : null,
+  ].filter(Boolean).join(' • ');
+  indicatorIdEl.textContent = metaBits;
   indicatorDescEl.innerHTML = formatDescription(ind.description);
 
   // Update selected indicator state
@@ -105,6 +113,30 @@ function applyHash() {
     const ds = ind.datasets.find(d => d.id === selectedDatasetId);
     if (ds) renderDatasetDetails(ds);
   }
+}
+
+// Helpers
+function safe(v) {
+  return (v ?? '').toString();
+}
+
+function section(title, html) {
+  if (!html || html === '<p></p>') return '';
+  return `<div><strong>${title}:</strong> ${html}</div>`;
+}
+
+function pickDatasetUrl(ds) {
+  // Prefer explicit url field if present
+  if (ds.url && /^https?:\/\//i.test(ds.url)) return ds.url;
+  // Try to extract first URL from source or citation fields
+  const url = extractFirstUrl(ds.source) || extractFirstUrl(ds.citation) || null;
+  return url;
+}
+
+function extractFirstUrl(text) {
+  if (!text) return null;
+  const m = String(text).match(/https?:\/\/[^\s)]+/i);
+  return m ? m[0] : null;
 }
 
 // Fetch and initialize

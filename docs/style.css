@@ -73,7 +73,7 @@ header {
   transition: background-color 0.25s ease;
 }
 
-#indicator-list button:hover, 
+#indicator-list button:hover,
 #indicator-list button:focus {
   background: #d0e0ff;
   outline: none;
@@ -112,7 +112,7 @@ header {
   font-weight: 600;
 }
 
-#dataset-list li:hover, 
+#dataset-list li:hover,
 #dataset-list li:focus {
   background: #e6ecff;
   outline: none;
