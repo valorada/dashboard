@@ -1,0 +1,30 @@
+[
+  {
+    "indicator": "Average Annual Temperature",
+    "datasets": [
+      {
+        "id": "temp001",
+        "name": "ERA5 Climate Reanalysis (1979–2023)",
+        "description": "Gridded reanalysis dataset with hourly resolution, covering global land and ocean areas.",
+        "url": "https://example.com/era5"
+      },
+      {
+        "id": "temp002",
+        "name": "Global Historical Climatology Network",
+        "description": "Station-based temperature records aggregated to monthly averages from 1880 onwards.",
+        "url": "https://example.com/ghcn"
+      }
+    ]
+  },
+  {
+    "indicator": "Sea Level Rise",
+    "datasets": [
+      {
+        "id": "slr001",
+        "name": "Satellite Altimetry Data",
+        "description": "Satellite-derived measurements of global mean sea level since 1993.",
+        "url": "https://example.com/altimetry"
+      }
+    ]
+  }
+]

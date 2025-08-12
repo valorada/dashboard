@@ -1,0 +1,133 @@
+/* Reset some basics */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f9faff;
+  color: #333;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: #003366;
+  color: white;
+  padding: 1.2rem 2rem;
+  font-weight: 600;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Dashboard container */
+#dashboard {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 260px 1fr 1.3fr;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  background: #f9faff;
+  overflow: hidden;
+}
+
+/* Shared panel styling */
+#indicator-list, #dataset-list, #dataset-details {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  padding: 1.5rem 1.8rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Indicator buttons */
+#indicator-list button {
+  background: #f0f4ff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.8rem;
+  text-align: left;
+  font-weight: 600;
+  color: #003366;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+#indicator-list button:hover, 
+#indicator-list button:focus {
+  background: #d0e0ff;
+  outline: none;
+}
+
+/* Dataset list styling */
+#dataset-list h2, #dataset-details h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: #003366;
+  border-bottom: 2px solid #003366;
+  padding-bottom: 0.3rem;
+}
+
+#dataset-list ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+#dataset-list li {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid #e0e4f1;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background-color 0.25s ease;
+  color: #003366;
+  font-weight: 600;
+}
+
+#dataset-list li:hover, 
+#dataset-list li:focus {
+  background: #e6ecff;
+  outline: none;
+}
+
+/* Dataset details content */
+#details-content p {
+  margin: 0.5rem 0;
+  line-height: 1.4;
+  font-size: 0.95rem;
+  color: #222;
+}
+
+#details-content a {
+  color: #0044cc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+#details-content a:hover {
+  text-decoration: underline;
+}
+
+/* Scrollbar styling for Webkit browsers */
+#indicator-list::-webkit-scrollbar,
+#dataset-list::-webkit-scrollbar,
+#dataset-details::-webkit-scrollbar {
+  width: 8px;
+}
+
+#indicator-list::-webkit-scrollbar-thumb,
+#dataset-list::-webkit-scrollbar-thumb,
+#dataset-details::-webkit-scrollbar-thumb {
+  background-color: #b0b8d4;
+  border-radius: 4px;
+}
+
+#indicator-list::-webkit-scrollbar-track,
+#dataset-list::-webkit-scrollbar-track,
+#dataset-details::-webkit-scrollbar-track {
+  background: #f9faff;
+}
