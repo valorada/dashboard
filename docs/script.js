@@ -1,4 +1,6 @@
 const indicatorListEl = document.getElementById('indicator-list');
+const indicatorButtonsEl = document.getElementById('indicator-buttons');
+const categorySelectEl = document.getElementById('category-select');
 const indicatorDetailsEl = document.getElementById('dataset-list');
 const datasetListEl = indicatorDetailsEl.querySelector('ul');
 const indicatorTitleEl = indicatorDetailsEl.querySelector('h2');
@@ -9,6 +11,13 @@ const datasetDetailsEl = document.getElementById('details-content');
 let catalog = [];
 let selectedIndicatorId = null;
 let selectedDatasetId = null;
+let selectedCategory = '';
+
+// Get unique categories from catalog
+function getCategories() {
+  const categories = [...new Set(catalog.map(ind => ind.category).filter(Boolean))];
+  return categories.sort();
+}
 
 // Utility: format multiline description with paragraphs
 function formatDescription(text) {
@@ -70,16 +79,40 @@ function renderDatasets(ind) {
 }
 
 function highlightSelectedIndicator() {
-  const buttons = indicatorListEl.querySelectorAll('button[data-id]');
+  const buttons = indicatorButtonsEl.querySelectorAll('button[data-id]');
   buttons.forEach(b => {
     if (b.dataset.id === selectedIndicatorId) b.classList.add('selected');
     else b.classList.remove('selected');
   });
 }
 
+function renderCategoryFilter() {
+  const categories = getCategories();
+  categorySelectEl.innerHTML = '<option value="">All categories</option>';
+  categories.forEach(category => {
+    const option = document.createElement('option');
+    option.value = category;
+    option.textContent = category;
+    if (category === selectedCategory) option.selected = true;
+    categorySelectEl.appendChild(option);
+  });
+
+  categorySelectEl.onchange = () => {
+    selectedCategory = categorySelectEl.value;
+    renderIndicators();
+  };
+}
+
+function getFilteredIndicators() {
+  if (!selectedCategory) return catalog;
+  return catalog.filter(ind => ind.category === selectedCategory);
+}
+
 function renderIndicators() {
-  indicatorListEl.innerHTML = '';
-  catalog.forEach(ind => {
+  indicatorButtonsEl.innerHTML = '';
+  const filteredIndicators = getFilteredIndicators();
+  
+  filteredIndicators.forEach(ind => {
     const btn = document.createElement('button');
     btn.textContent = ind.indicator;
     btn.dataset.id = ind.id;
@@ -87,7 +120,7 @@ function renderIndicators() {
     btn.setAttribute('aria-pressed', String(ind.id === selectedIndicatorId));
     btn.onclick = () => renderDatasets(ind);
     btn.onkeydown = e => { if(e.key === 'Enter' || e.key === ' ') { renderDatasets(ind); } };
-    indicatorListEl.appendChild(btn);
+    indicatorButtonsEl.appendChild(btn);
   });
   highlightSelectedIndicator();
 }
@@ -106,10 +139,24 @@ function applyHash() {
   const indId = params.get('indicator');
   const dsId = params.get('dataset');
   if (!catalog.length) return;
-  const ind = catalog.find(i => i.id === indId) || catalog[0];
+  
+  let ind = catalog.find(i => i.id === indId);
+  if (ind) {
+    // If the indicator exists, check if we need to update the category filter
+    if (selectedCategory && ind.category !== selectedCategory) {
+      selectedCategory = ind.category;
+      renderCategoryFilter();
+      renderIndicators();
+    }
+  } else {
+    // Fallback to first available indicator (considering filter)
+    const filteredIndicators = getFilteredIndicators();
+    ind = filteredIndicators[0] || catalog[0];
+  }
+  
   selectedDatasetId = dsId || null;
-  renderDatasets(ind);
-  if (selectedDatasetId && ind.datasets) {
+  if (ind) renderDatasets(ind);
+  if (selectedDatasetId && ind && ind.datasets) {
     const ds = ind.datasets.find(d => d.id === selectedDatasetId);
     if (ds) renderDatasetDetails(ds);
   }
@@ -148,6 +195,7 @@ fetch('catalog.json', { cache: 'no-cache' })
   .then(data => {
     if (!Array.isArray(data)) throw new Error('Catalog format invalid');
     catalog = data;
+    renderCategoryFilter();
     renderIndicators();
     // Apply deep link if present, else select first indicator by default
     if (window.location.hash) applyHash();

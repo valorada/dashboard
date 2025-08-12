@@ -20,7 +20,16 @@
 
   <div id="dashboard">
     <!-- Left panel: Indicators -->
-    <aside id="indicator-list" role="navigation" aria-label="Indicators"></aside>
+    <aside id="indicator-list" role="navigation" aria-label="Indicators">
+      <!-- Category Filter -->
+      <div id="category-filter">
+        <label for="category-select">Filter by category:</label>
+        <select id="category-select">
+          <option value="">All categories</option>
+        </select>
+      </div>
+      <div id="indicator-buttons"></div>
+    </aside>
 
     <!-- Middle panel: Datasets -->
     <section id="dataset-list" role="region" aria-labelledby="indicator-title">
