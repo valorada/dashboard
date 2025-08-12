@@ -11,11 +11,21 @@ body {
 
 header {
   background: #003366;
-  color: white;
+  color: rgb(255, 255, 255);
   padding: 1.2rem 2rem;
   font-weight: 600;
   font-size: 1.5rem;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+
+  /* Flex layout */
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* space between logo and text */
+}
+
+#logo {
+  height: 100px; /* adjust as needed */
+  width: auto;
 }
 
 /* Dashboard container */

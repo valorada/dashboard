@@ -1,29 +1,58 @@
 [
   {
+    "id": "ind001",
     "indicator": "Average Annual Temperature",
+    "description": "This indicator measures the average temperature for each year across different regions worldwide.\n\nIt provides insights into climate trends and helps identify warming or cooling patterns over time.\n\nData is aggregated from multiple sources to ensure reliability and coverage.",
     "datasets": [
       {
         "id": "temp001",
         "name": "ERA5 Climate Reanalysis (1979–2023)",
-        "description": "Gridded reanalysis dataset with hourly resolution, covering global land and ocean areas.",
+        "description": "The ERA5 dataset provides hourly estimates of atmospheric variables on a global scale. It is based on a comprehensive data assimilation system combining satellite and ground-based observations.\n\nThis dataset is essential for climate modeling and weather forecasting applications.",
         "url": "https://example.com/era5"
       },
       {
         "id": "temp002",
         "name": "Global Historical Climatology Network",
-        "description": "Station-based temperature records aggregated to monthly averages from 1880 onwards.",
+        "description": "The GHCN dataset consists of station-based temperature records aggregated to monthly and yearly averages. It spans more than a century, allowing long-term climate studies.\n\nThe dataset is frequently updated and quality-controlled by NOAA.",
         "url": "https://example.com/ghcn"
       }
     ]
   },
   {
+    "id": "ind002",
     "indicator": "Sea Level Rise",
+    "description": "This indicator monitors changes in global mean sea level using satellite altimetry and tide gauge data.\n\nRising sea levels pose significant risks to coastal communities, infrastructure, and ecosystems.\n\nTracking sea level change is critical for climate impact assessments and adaptation planning.",
     "datasets": [
       {
         "id": "slr001",
         "name": "Satellite Altimetry Data",
-        "description": "Satellite-derived measurements of global mean sea level since 1993.",
+        "description": "Satellite altimetry provides precise measurements of sea surface height from space, with global coverage since 1993.\n\nThese measurements enable the detection of trends and variations in sea level at various temporal and spatial scales.",
         "url": "https://example.com/altimetry"
+      },
+      {
+        "id": "slr002",
+        "name": "Tide Gauge Records",
+        "description": "Tide gauge data offers long-term sea level measurements from coastal stations worldwide. Although spatially limited, these records provide invaluable historical context.\n\nThey are used alongside satellite data to improve sea level change estimates.",
+        "url": "https://example.com/tidegauges"
+      }
+    ]
+  },
+  {
+    "id": "ind003",
+    "indicator": "Precipitation Patterns",
+    "description": "Analyzes the amount, frequency, and distribution of precipitation globally.\n\nUnderstanding precipitation trends helps in managing water resources, agriculture, and disaster risk related to floods and droughts.\n\nThe indicator combines data from weather stations, radars, and satellites.",
+    "datasets": [
+      {
+        "id": "precip001",
+        "name": "Global Precipitation Measurement (GPM)",
+        "description": "GPM provides high-resolution, near-real-time precipitation data from a constellation of satellites.\n\nIt covers a broad range of precipitation types including rain, snow, and hail.\n\nThis data is crucial for hydrological modeling and weather forecasting.",
+        "url": "https://example.com/gpm"
+      },
+      {
+        "id": "precip002",
+        "name": "Climate Prediction Center Rainfall Data",
+        "description": "This dataset includes monthly precipitation analyses derived from multiple sources and is used extensively for climate monitoring.\n\nIt offers regional to global scale precipitation information essential for drought assessment.",
+        "url": "https://example.com/cpc"
       }
     ]
   }
