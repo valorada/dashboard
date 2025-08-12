@@ -68,8 +68,12 @@ def read_csv(url: str) -> List[dict]:
 
 
 def build_catalog() -> List[dict]:
-    indicators = read_csv(URLS["indicators"])  # indicator_id, category, name, source, description
-    datasets = read_csv(URLS["datasets"])  # dataset_id, name, description, source, citation, license
+    indicators = read_csv(
+        URLS["indicators"]
+    )  # indicator_id, category, name, source, description
+    datasets = read_csv(
+        URLS["datasets"]
+    )  # dataset_id, name, description, source, citation, license
     links = read_csv(URLS["links"])  # indicator_id, dataset_id
 
     # Index datasets by id
@@ -100,6 +104,7 @@ def build_catalog() -> List[dict]:
 
     # Compose catalog
     catalog: List[dict] = []
+
     # Sort indicators by category then name for stable order
     def ind_sort_key(ind: dict):
         return (ind.get("category", ""), ind.get("name", ""))
