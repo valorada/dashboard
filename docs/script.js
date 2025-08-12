@@ -1,17 +1,23 @@
 const indicatorListEl = document.getElementById('indicator-list');
 const indicatorButtonsEl = document.getElementById('indicator-buttons');
 const categorySelectEl = document.getElementById('category-select');
+const clearFilterBtn = document.getElementById('clear-filter');
+const searchInputEl = document.getElementById('indicator-search');
+const clearSearchBtn = document.getElementById('clear-search');
 const indicatorDetailsEl = document.getElementById('dataset-list');
 const datasetListEl = indicatorDetailsEl.querySelector('ul');
 const indicatorTitleEl = indicatorDetailsEl.querySelector('h2');
 const indicatorIdEl = document.getElementById('indicator-id');
 const indicatorDescEl = document.getElementById('indicator-description');
 const datasetDetailsEl = document.getElementById('details-content');
+const copyLinkBtn = document.getElementById('copy-link-btn');
+const liveRegion = document.getElementById('live-region');
 
 let catalog = [];
 let selectedIndicatorId = null;
 let selectedDatasetId = null;
 let selectedCategory = '';
+let searchQuery = '';
 
 // Resizable columns state
 const dashboardEl = document.getElementById('dashboard');
@@ -117,28 +123,82 @@ function renderCategoryFilter() {
     const selColor = selectedCategory ? getCategoryColor(selectedCategory) : '';
     categorySelectEl.style.color = selColor;
     renderIndicators();
+  clearFilterBtn.disabled = !selectedCategory;
+  };
+
+  clearFilterBtn.onclick = () => {
+    selectedCategory = '';
+    categorySelectEl.value = '';
+    categorySelectEl.style.color = '';
+    renderIndicators();
+  clearFilterBtn.disabled = true;
   };
 
   // Initialize select color based on current selection
   const initColor = selectedCategory ? getCategoryColor(selectedCategory) : '';
   categorySelectEl.style.color = initColor;
+  clearFilterBtn.disabled = !selectedCategory;
+
+  // Search wiring
+  searchInputEl.value = searchQuery;
+  searchInputEl.oninput = () => {
+    searchQuery = searchInputEl.value.trim();
+    renderIndicators();
+    clearSearchBtn.disabled = !searchQuery;
+  };
+  clearSearchBtn.onclick = () => {
+    searchQuery = '';
+    searchInputEl.value = '';
+    renderIndicators();
+    searchInputEl.focus();
+    clearSearchBtn.disabled = true;
+  };
+  clearSearchBtn.disabled = !searchQuery;
 }
 
 function getFilteredIndicators() {
-  if (!selectedCategory) return catalog;
-  return catalog.filter(ind => ind.category === selectedCategory);
+  let list = catalog;
+  if (selectedCategory) list = list.filter(ind => ind.category === selectedCategory);
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(ind =>
+      (ind.indicator && ind.indicator.toLowerCase().includes(q)) ||
+      (ind.description && ind.description.toLowerCase().includes(q))
+    );
+  }
+  return list;
 }
 
 function renderIndicators() {
   indicatorButtonsEl.innerHTML = '';
   const filteredIndicators = getFilteredIndicators();
 
+  if (filteredIndicators.length === 0) {
+    indicatorButtonsEl.innerHTML = '<p>No indicators found.</p>';
+    // Clear right/middle panels to avoid stale selection
+    indicatorTitleEl.textContent = 'No indicator selected';
+    indicatorIdEl.textContent = '';
+    indicatorDescEl.textContent = '';
+    datasetListEl.innerHTML = '';
+    datasetDetailsEl.textContent = 'Adjust filters or search to see details';
+    announce('No indicators found');
+    return;
+  }
+
   filteredIndicators.forEach(ind => {
     const btn = document.createElement('button');
-    btn.textContent = ind.indicator;
+  // Button with title and dataset count badge
+  const titleSpan = document.createElement('span');
+  titleSpan.textContent = ind.indicator;
+  const badge = document.createElement('span');
+  badge.className = 'badge';
+  badge.textContent = (ind.datasets?.length || 0).toString();
+  btn.appendChild(titleSpan);
+  btn.appendChild(badge);
     btn.dataset.id = ind.id;
     btn.tabIndex = 0;
     btn.setAttribute('aria-pressed', String(ind.id === selectedIndicatorId));
+    btn.setAttribute('aria-label', `${ind.indicator} (${ind.datasets?.length || 0} datasets)`);
   // Assign category color to left border
   const catColor = getCategoryColor(ind.category);
   btn.style.setProperty('--cat-color', catColor);
@@ -147,6 +207,11 @@ function renderIndicators() {
     indicatorButtonsEl.appendChild(btn);
   });
   highlightSelectedIndicator();
+
+  // If current selection is filtered out, auto-select first visible indicator
+  if (!filteredIndicators.find(i => i.id === selectedIndicatorId)) {
+    renderDatasets(filteredIndicators[0]);
+  }
 }
 
 function updateHash() {
@@ -208,6 +273,27 @@ function extractFirstUrl(text) {
   if (!text) return null;
   const m = String(text).match(/https?:\/\/[^\s)]+/i);
   return m ? m[0] : null;
+}
+
+// Copy deep link to clipboard
+function copyDeepLink() {
+  const url = new URL(window.location.href);
+  if (!selectedIndicatorId) return;
+  const params = new URLSearchParams();
+  params.set('indicator', selectedIndicatorId);
+  if (selectedDatasetId) params.set('dataset', selectedDatasetId);
+  url.hash = params.toString();
+  navigator.clipboard.writeText(url.toString()).then(() => {
+    announce('Link copied to clipboard');
+  }, () => {
+    announce('Failed to copy link');
+  });
+}
+
+function announce(msg) {
+  if (!liveRegion) return;
+  liveRegion.textContent = '';
+  setTimeout(() => { liveRegion.textContent = msg; }, 10);
 }
 
 // Category color mapping
@@ -368,3 +454,8 @@ fetch('catalog.json', { cache: 'no-cache' })
     indicatorListEl.setAttribute('role', 'alert');
     console.error(err);
   });
+
+// Toolbar actions
+if (copyLinkBtn) {
+  copyLinkBtn.onclick = copyDeepLink;
+}
