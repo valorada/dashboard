@@ -24,7 +24,7 @@ header {
 }
 
 #logo {
-  height: 100px; /* adjust as needed */
+  height: 64px; /* more compact header */
   width: auto;
 }
 
@@ -50,6 +50,15 @@ header {
   flex-direction: column;
 }
 
+.noscript {
+  margin: 1rem 2rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0a100;
+  background: #fff7e6;
+  color: #664d03;
+  border-radius: 6px;
+}
+
 /* Indicator buttons */
 #indicator-list button {
   background: #f0f4ff;
@@ -68,6 +77,11 @@ header {
 #indicator-list button:focus {
   background: #d0e0ff;
   outline: none;
+}
+
+#indicator-list button.selected {
+  background: #c0d2ff;
+  box-shadow: inset 0 0 0 2px #00336622;
 }
 
 /* Dataset list styling */
@@ -104,6 +118,10 @@ header {
   outline: none;
 }
 
+#dataset-list li.selected {
+  background: #dbe5ff;
+}
+
 /* Dataset details content */
 #details-content p {
   margin: 0.5rem 0;
@@ -120,6 +138,12 @@ header {
 
 #details-content a:hover {
   text-decoration: underline;
+}
+
+/* Focus visibility */
+:focus-visible {
+  outline: 2px solid #003366;
+  outline-offset: 2px;
 }
 
 /* Scrollbar styling for Webkit browsers */
