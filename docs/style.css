@@ -30,10 +30,15 @@ header {
 
 /* Dashboard container */
 #dashboard {
+  --col-left: 260px;
+  --col-middle: 1fr;
+  --col-right: 1.3fr;
+  --gutter-size: 8px;
+  --gap: 1.5rem;
   flex: 1;
   display: grid;
-  grid-template-columns: 260px 1fr 1.3fr;
-  gap: 1.5rem;
+  grid-template-columns: var(--col-left) var(--gutter-size) var(--col-middle) var(--gutter-size) var(--col-right);
+  gap: var(--gap);
   padding: 1.5rem 2rem;
   background: #f9faff;
   overflow: hidden;
@@ -48,6 +53,36 @@ header {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+}
+
+/* Gutter (resizer) */
+.gutter {
+  cursor: col-resize;
+  background: transparent;
+  position: relative;
+}
+
+.gutter::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  background: #dfe3f0;
+  border-radius: 2px;
+}
+
+.gutter:hover::after,
+.gutter:focus::after,
+.gutter.dragging::after {
+  background: #aab2cc;
+}
+
+.gutter:hover,
+.gutter:focus {
+  background: #f0f3ff80; /* slightly increase hit area visibility */
 }
 
 .noscript {

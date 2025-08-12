@@ -13,6 +13,16 @@ let selectedIndicatorId = null;
 let selectedDatasetId = null;
 let selectedCategory = '';
 
+// Resizable columns state
+const dashboardEl = document.getElementById('dashboard');
+const gutter1 = document.getElementById('gutter-1');
+const gutter2 = document.getElementById('gutter-2');
+const LS_KEY = 'dashboard.col.widths.v1';
+let colLeftPx = 260; // initial fallback
+let colRightPx = null; // computed from container when needed
+let isDragging = false;
+let dragTarget = null; // 'g1' or 'g2'
+
 // Get unique categories from catalog
 function getCategories() {
   const categories = [...new Set(catalog.map(ind => ind.category).filter(Boolean))];
@@ -111,7 +121,7 @@ function getFilteredIndicators() {
 function renderIndicators() {
   indicatorButtonsEl.innerHTML = '';
   const filteredIndicators = getFilteredIndicators();
-  
+
   filteredIndicators.forEach(ind => {
     const btn = document.createElement('button');
     btn.textContent = ind.indicator;
@@ -139,7 +149,7 @@ function applyHash() {
   const indId = params.get('indicator');
   const dsId = params.get('dataset');
   if (!catalog.length) return;
-  
+
   let ind = catalog.find(i => i.id === indId);
   if (ind) {
     // If the indicator exists, check if we need to update the category filter
@@ -153,7 +163,7 @@ function applyHash() {
     const filteredIndicators = getFilteredIndicators();
     ind = filteredIndicators[0] || catalog[0];
   }
-  
+
   selectedDatasetId = dsId || null;
   if (ind) renderDatasets(ind);
   if (selectedDatasetId && ind && ind.datasets) {
@@ -186,6 +196,123 @@ function extractFirstUrl(text) {
   return m ? m[0] : null;
 }
 
+// ========== Resizable columns ==========
+function applyWidths() {
+  const rect = dashboardEl.getBoundingClientRect();
+  const total = rect.width - 2 * parseFloat(getComputedStyle(dashboardEl).getPropertyValue('--gutter-size')) - parseFloat(getComputedStyle(dashboardEl).gap || 0) * 2; // approximate
+  const min = 180; // px minimum for side panels
+  const right = colRightPx != null ? colRightPx : Math.max(min, Math.floor(total * 0.35));
+  const left = Math.max(min, colLeftPx);
+  const middle = Math.max(min, total - left - right);
+  dashboardEl.style.setProperty('--col-left', `${left}px`);
+  dashboardEl.style.setProperty('--col-middle', `${middle}px`);
+  dashboardEl.style.setProperty('--col-right', `${right}px`);
+}
+
+function saveWidths() {
+  const val = {
+    left: parseInt(getComputedStyle(dashboardEl).getPropertyValue('--col-left')) || colLeftPx,
+    middle: parseInt(getComputedStyle(dashboardEl).getPropertyValue('--col-middle')) || 0,
+    right: parseInt(getComputedStyle(dashboardEl).getPropertyValue('--col-right')) || 0,
+  };
+  localStorage.setItem(LS_KEY, JSON.stringify(val));
+}
+
+function loadWidths() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const val = JSON.parse(raw);
+    if (val && typeof val.left === 'number' && typeof val.right === 'number') {
+      colLeftPx = val.left;
+      colRightPx = val.right;
+      dashboardEl.style.setProperty('--col-left', `${val.left}px`);
+      dashboardEl.style.setProperty('--col-middle', `${val.middle}px`);
+      dashboardEl.style.setProperty('--col-right', `${val.right}px`);
+    }
+  } catch (_) { /* ignore */ }
+}
+
+function startDrag(e, target) {
+  isDragging = true;
+  dragTarget = target; // 'g1' or 'g2'
+  document.body.style.userSelect = 'none';
+  document.body.style.cursor = 'col-resize';
+  (target === 'g1' ? gutter1 : gutter2).classList.add('dragging');
+}
+
+function onDrag(e) {
+  if (!isDragging) return;
+  const rect = dashboardEl.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const min = 180;
+  const gutterSize = parseFloat(getComputedStyle(dashboardEl).getPropertyValue('--gutter-size'));
+  if (dragTarget === 'g1') {
+    colLeftPx = Math.max(min, Math.min(x, rect.width - min));
+  } else if (dragTarget === 'g2') {
+    // Right width computed from right edge
+    const rightX = rect.width - x;
+    colRightPx = Math.max(min, Math.min(rightX, rect.width - min));
+  }
+  applyWidths();
+}
+
+function endDrag() {
+  if (!isDragging) return;
+  isDragging = false;
+  dragTarget = null;
+  document.body.style.userSelect = '';
+  document.body.style.cursor = '';
+  gutter1.classList.remove('dragging');
+  gutter2.classList.remove('dragging');
+  saveWidths();
+}
+
+function initResizers() {
+  loadWidths();
+  applyWidths();
+  // Mouse/touch events
+  gutter1.addEventListener('mousedown', e => startDrag(e, 'g1'));
+  gutter2.addEventListener('mousedown', e => startDrag(e, 'g2'));
+  gutter1.addEventListener('touchstart', e => { startDrag(e, 'g1'); e.preventDefault(); }, { passive: false });
+  gutter2.addEventListener('touchstart', e => { startDrag(e, 'g2'); e.preventDefault(); }, { passive: false });
+  window.addEventListener('mousemove', onDrag);
+  window.addEventListener('touchmove', onDrag, { passive: false });
+  window.addEventListener('mouseup', endDrag);
+  window.addEventListener('touchend', endDrag);
+  window.addEventListener('resize', applyWidths);
+
+  // Keyboard resize (10px step, Shift = 50px)
+  function keyResizeFactory(which) {
+    const step = (e) => (e.shiftKey ? 50 : 10);
+    return function(e) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const delta = (e.key === 'ArrowLeft' ? -1 : 1) * step(e);
+        if (which === 'g1') {
+          colLeftPx = Math.max(180, colLeftPx + delta);
+        } else {
+          colRightPx = Math.max(180, (colRightPx || 300) - delta); // inverse on right gutter
+        }
+        applyWidths();
+        saveWidths();
+      }
+    };
+  }
+  gutter1.addEventListener('keydown', keyResizeFactory('g1'));
+  gutter2.addEventListener('keydown', keyResizeFactory('g2'));
+
+  // Double-click to reset to defaults
+  function resetWidths() {
+    colLeftPx = 260;
+    colRightPx = null; // recompute
+    localStorage.removeItem(LS_KEY);
+    applyWidths();
+  }
+  gutter1.ondblclick = resetWidths;
+  gutter2.ondblclick = resetWidths;
+}
+
 // Fetch and initialize
 fetch('catalog.json', { cache: 'no-cache' })
   .then(res => {
@@ -195,6 +322,7 @@ fetch('catalog.json', { cache: 'no-cache' })
   .then(data => {
     if (!Array.isArray(data)) throw new Error('Catalog format invalid');
     catalog = data;
+  initResizers();
     renderCategoryFilter();
     renderIndicators();
     // Apply deep link if present, else select first indicator by default
