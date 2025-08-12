@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="VALORADA catalog dashboard: browse indicators and datasets with details."/>
   <title>VALORADA Catalog</title>
   <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="https://raw.githubusercontent.com/valorada/.github/main/images/VALORADA-picto%2Blogo%2Bbaseline.png" />
 </head>
 <body>
   <header>
@@ -12,14 +14,18 @@
     <h1>Catalog</h1>
   </header>
 
+  <noscript>
+    <div class="noscript">This site requires JavaScript to load the catalog. Please enable JavaScript.</div>
+  </noscript>
+
   <div id="dashboard">
     <!-- Left panel: Indicators -->
-    <aside id="indicator-list"></aside>
+    <aside id="indicator-list" role="navigation" aria-label="Indicators"></aside>
 
     <!-- Middle panel: Datasets -->
-    <section id="dataset-list">
+    <section id="dataset-list" role="region" aria-labelledby="indicator-title">
       <div id="indicator-details">
-        <h2>Select an indicator</h2>
+        <h2 id="indicator-title">Select an indicator</h2>
         <p id="indicator-id"></p>
         <p id="indicator-description"></p>
       </div>
@@ -27,8 +33,8 @@
     </section>
 
     <!-- Right panel: Dataset details -->
-    <section id="dataset-details">
-      <h2>Dataset details</h2>
+    <section id="dataset-details" role="region" aria-labelledby="dataset-details-title">
+      <h2 id="dataset-details-title">Dataset details</h2>
       <div id="details-content">Select a dataset to see details</div>
     </section>
   </div>
