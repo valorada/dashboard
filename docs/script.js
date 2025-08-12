@@ -54,10 +54,12 @@ function renderDatasetDetails(ds) {
 
 function renderDatasets(ind) {
   indicatorTitleEl.textContent = ind.indicator;
-  const metaBits = [
-    ind.id ? `ID: ${ind.id}` : null,
-    ind.category ? `Category: ${ind.category}` : null,
-  ].filter(Boolean).join(' • ');
+  // Add a colored category chip next to the title when available
+  const cat = ind.category || '';
+  const color = getCategoryColor(cat);
+  const chip = cat ? ` <span class="category-chip" style="--cat-color: ${color}">${cat}</span>` : '';
+  indicatorTitleEl.innerHTML = `${escapeHtml(ind.indicator)}${chip}`;
+  const metaBits = [ ind.id ? `ID: ${ind.id}` : null ].filter(Boolean).join(' • ');
   indicatorIdEl.textContent = metaBits;
   indicatorDescEl.innerHTML = formatDescription(ind.description);
 
@@ -102,15 +104,24 @@ function renderCategoryFilter() {
   categories.forEach(category => {
     const option = document.createElement('option');
     option.value = category;
-    option.textContent = category;
+    // Prefix with a colored bullet for category
+    option.textContent = `\u25CF ${category}`; // ●
+    option.style.color = getCategoryColor(category);
     if (category === selectedCategory) option.selected = true;
     categorySelectEl.appendChild(option);
   });
 
   categorySelectEl.onchange = () => {
     selectedCategory = categorySelectEl.value;
+    // Set the select text color to the selected category color (or default)
+    const selColor = selectedCategory ? getCategoryColor(selectedCategory) : '';
+    categorySelectEl.style.color = selColor;
     renderIndicators();
   };
+
+  // Initialize select color based on current selection
+  const initColor = selectedCategory ? getCategoryColor(selectedCategory) : '';
+  categorySelectEl.style.color = initColor;
 }
 
 function getFilteredIndicators() {
@@ -128,6 +139,9 @@ function renderIndicators() {
     btn.dataset.id = ind.id;
     btn.tabIndex = 0;
     btn.setAttribute('aria-pressed', String(ind.id === selectedIndicatorId));
+  // Assign category color to left border
+  const catColor = getCategoryColor(ind.category);
+  btn.style.setProperty('--cat-color', catColor);
     btn.onclick = () => renderDatasets(ind);
     btn.onkeydown = e => { if(e.key === 'Enter' || e.key === ' ') { renderDatasets(ind); } };
     indicatorButtonsEl.appendChild(btn);
@@ -194,6 +208,25 @@ function extractFirstUrl(text) {
   if (!text) return null;
   const m = String(text).match(/https?:\/\/[^\s)]+/i);
   return m ? m[0] : null;
+}
+
+// Category color mapping
+function getCategoryColor(category) {
+  const map = {
+    'Exposure': '#ffb84d',
+    'Sensitivity': '#ff6b6b',
+    'Adaptive Capacity': '#4dd0a6',
+  };
+  return map[category] || '#bcd5ff';
+}
+
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 // ========== Resizable columns ==========

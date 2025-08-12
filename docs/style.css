@@ -115,7 +115,7 @@ header {
   border: 1px solid #d0d7e6;
   border-radius: 4px;
   background: white;
-  color: #003366;
+  color: #003366; /* will be overridden inline per selection */
   font-size: 0.9rem;
   cursor: pointer;
 }
@@ -137,6 +137,7 @@ header {
   color: #003366;
   cursor: pointer;
   transition: background-color 0.25s ease;
+  border-left: 6px solid var(--cat-color, #bcd5ff);
 }
 
 #indicator-list button:hover,
@@ -158,6 +159,20 @@ header {
   color: #003366;
   border-bottom: 2px solid #003366;
   padding-bottom: 0.3rem;
+}
+
+/* Category chip */
+.category-chip {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #0b1020;
+  background: color-mix(in srgb, var(--cat-color, #bcd5ff) 25%, white);
+  border: 1px solid color-mix(in srgb, var(--cat-color, #bcd5ff) 60%, #ffffff);
 }
 
 #dataset-list ul {
