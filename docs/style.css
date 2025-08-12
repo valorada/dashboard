@@ -109,6 +109,13 @@ header {
   font-size: 0.9rem;
 }
 
+#category-filter .filter-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 #category-select {
   width: 100%;
   padding: 0.5rem;
@@ -126,6 +133,53 @@ header {
   border-color: #003366;
 }
 
+.btn {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d0d7e6;
+  background: #f6f8ff;
+  color: #003366;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover, .btn:focus {
+  background: #e6ecff;
+}
+
+.btn.btn-secondary {
+  background: #ffffff;
+}
+
+.search-box {
+  margin-top: 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+}
+
+.search-box input[type="search"] {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #d0d7e6;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.icon-btn {
+  border: 1px solid #d0d7e6;
+  background: #fff;
+  border-radius: 6px;
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.icon-btn:hover, .icon-btn:focus {
+  background: #f6f8ff;
+}
+
 #indicator-list button {
   background: #f0f4ff;
   border: none;
@@ -138,6 +192,20 @@ header {
   cursor: pointer;
   transition: background-color 0.25s ease;
   border-left: 6px solid var(--cat-color, #bcd5ff);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.badge {
+  display: inline-block;
+  min-width: 1.5rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: #e6ecff;
+  color: #003366;
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 #indicator-list button:hover,
@@ -159,6 +227,12 @@ header {
   color: #003366;
   border-bottom: 2px solid #003366;
   padding-bottom: 0.3rem;
+}
+
+.details-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Category chip */
@@ -219,6 +293,18 @@ header {
 
 #details-content a:hover {
   text-decoration: underline;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 
 /* Focus visibility */

@@ -24,9 +24,18 @@
       <!-- Category Filter -->
       <div id="category-filter">
         <label for="category-select">Filter by category:</label>
-        <select id="category-select">
-          <option value="">All categories</option>
-        </select>
+        <div class="filter-row">
+          <select id="category-select" aria-label="Category filter">
+            <option value="">All categories</option>
+          </select>
+          <button id="clear-filter" class="btn btn-secondary" type="button" aria-label="Clear category filter">Clear</button>
+        </div>
+
+        <label for="indicator-search" class="sr-only">Search indicators</label>
+        <div class="search-box">
+          <input id="indicator-search" type="search" placeholder="Search indicators" autocomplete="off" aria-label="Search indicators" />
+          <button id="clear-search" class="icon-btn" type="button" aria-label="Clear search">×</button>
+        </div>
       </div>
       <div id="indicator-buttons"></div>
   </aside>
@@ -50,9 +59,15 @@
     <!-- Right panel: Dataset details -->
     <section id="dataset-details" role="region" aria-labelledby="dataset-details-title">
       <h2 id="dataset-details-title">Dataset details</h2>
+      <div class="details-toolbar">
+        <button id="copy-link-btn" class="btn" type="button" aria-label="Copy deep link">Copy link</button>
+      </div>
       <div id="details-content">Select a dataset to see details</div>
     </section>
   </div>
+
+  <!-- Screen-reader live region for announcements -->
+  <div id="live-region" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
   <script src="script.js"></script>
 </body>
