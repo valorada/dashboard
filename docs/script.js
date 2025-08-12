@@ -123,37 +123,43 @@ function renderCategoryFilter() {
     const selColor = selectedCategory ? getCategoryColor(selectedCategory) : '';
     categorySelectEl.style.color = selColor;
     renderIndicators();
-  clearFilterBtn.disabled = !selectedCategory;
+    if (clearFilterBtn) clearFilterBtn.disabled = !selectedCategory;
   };
 
-  clearFilterBtn.onclick = () => {
-    selectedCategory = '';
-    categorySelectEl.value = '';
-    categorySelectEl.style.color = '';
-    renderIndicators();
-  clearFilterBtn.disabled = true;
-  };
+  if (clearFilterBtn) {
+    clearFilterBtn.onclick = () => {
+      selectedCategory = '';
+      categorySelectEl.value = '';
+      categorySelectEl.style.color = '';
+      renderIndicators();
+      clearFilterBtn.disabled = true;
+    };
+  }
 
   // Initialize select color based on current selection
   const initColor = selectedCategory ? getCategoryColor(selectedCategory) : '';
   categorySelectEl.style.color = initColor;
-  clearFilterBtn.disabled = !selectedCategory;
+  if (clearFilterBtn) clearFilterBtn.disabled = !selectedCategory;
 
   // Search wiring
-  searchInputEl.value = searchQuery;
-  searchInputEl.oninput = () => {
-    searchQuery = searchInputEl.value.trim();
-    renderIndicators();
+  if (searchInputEl) {
+    searchInputEl.value = searchQuery;
+    searchInputEl.oninput = () => {
+      searchQuery = searchInputEl.value.trim();
+      renderIndicators();
+      if (clearSearchBtn) clearSearchBtn.disabled = !searchQuery;
+    };
+  }
+  if (clearSearchBtn) {
+    clearSearchBtn.onclick = () => {
+      searchQuery = '';
+      if (searchInputEl) searchInputEl.value = '';
+      renderIndicators();
+      if (searchInputEl) searchInputEl.focus();
+      clearSearchBtn.disabled = true;
+    };
     clearSearchBtn.disabled = !searchQuery;
-  };
-  clearSearchBtn.onclick = () => {
-    searchQuery = '';
-    searchInputEl.value = '';
-    renderIndicators();
-    searchInputEl.focus();
-    clearSearchBtn.disabled = true;
-  };
-  clearSearchBtn.disabled = !searchQuery;
+  }
 }
 
 function getFilteredIndicators() {
