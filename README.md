@@ -44,3 +44,18 @@ Update `docs/catalog.json` with your indicators and datasets. Minimal shape:
 ```
 
 Deep-link support: you can link to a specific indicator or dataset using the hash, e.g. `#indicator=ind001&dataset=ds1`.
+
+## Generate catalog.json from CSVs
+
+Source CSVs live in `valorada/catalog` under `data/`:
+- indicators.csv
+- datasets.csv
+- links_indicator_to_data.csv
+
+To regenerate `docs/catalog.json` by joining these three files:
+
+```bash
+python3 code/generate_catalog.py
+```
+
+This script fetches the CSVs from GitHub, builds the combined structure, and overwrites `docs/catalog.json`.
