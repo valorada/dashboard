@@ -28,6 +28,20 @@ header {
   width: auto;
 }
 
+/* Header stats */
+#header-stats {
+  margin-left: auto;
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  font-size: 0.95rem;
+}
+
+#header-stats .stat strong {
+  font-size: 1.05rem;
+  margin-right: 0.25rem;
+}
+
 /* Dashboard container */
 #dashboard {
   --col-left: 260px;

@@ -12,6 +12,8 @@ const indicatorDescEl = document.getElementById('indicator-description');
 const datasetDetailsEl = document.getElementById('details-content');
 const copyLinkBtn = document.getElementById('copy-link-btn');
 const liveRegion = document.getElementById('live-region');
+const statIndicatorsEl = document.getElementById('stat-indicators');
+const statDatasetsEl = document.getElementById('stat-datasets');
 
 let catalog = [];
 let selectedIndicatorId = null;
@@ -160,6 +162,9 @@ function renderCategoryFilter() {
     };
     clearSearchBtn.disabled = !searchQuery;
   }
+
+  // Initial stats update after filter wiring
+  updateHeaderStats();
 }
 
 function getFilteredIndicators() {
@@ -178,6 +183,9 @@ function getFilteredIndicators() {
 function renderIndicators() {
   indicatorButtonsEl.innerHTML = '';
   const filteredIndicators = getFilteredIndicators();
+
+  // Update header stats on each render
+  updateHeaderStats(filteredIndicators);
 
   if (filteredIndicators.length === 0) {
     indicatorButtonsEl.innerHTML = '<p>No indicators found.</p>';
@@ -218,6 +226,15 @@ function renderIndicators() {
   if (!filteredIndicators.find(i => i.id === selectedIndicatorId)) {
     renderDatasets(filteredIndicators[0]);
   }
+}
+
+function updateHeaderStats(filtered = null) {
+  if (!statIndicatorsEl || !statDatasetsEl) return;
+  const list = filtered || getFilteredIndicators();
+  const indicatorCount = list.length;
+  const datasetCount = list.reduce((acc, ind) => acc + (ind.datasets ? ind.datasets.length : 0), 0);
+  statIndicatorsEl.textContent = String(indicatorCount);
+  statDatasetsEl.textContent = String(datasetCount);
 }
 
 function updateHash() {
