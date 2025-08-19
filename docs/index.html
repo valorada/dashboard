@@ -11,20 +11,20 @@
 <body>
   <header>
     <img src="https://raw.githubusercontent.com/valorada/.github/main/images/VALORADA-picto%2Blogo%2Bbaseline.png" alt="VALORADA Logo" id="logo" />
+  <h1>Catalog</h1>
     <div id="header-stats" aria-live="polite" title="Counts reflect current filters">
       <span class="stat"><strong id="stat-indicators">0</strong> indicators</span>
       <span class="stat"><strong id="stat-datasets">0</strong> datasets</span>
     </div>
+  <button id="theme-toggle" class="icon-btn" type="button" aria-label="Toggle color theme" title="Toggle light/dark">🌙</button>
+  <button id="hc-toggle" class="icon-btn" type="button" aria-label="Toggle high-contrast focus" title="Toggle high-contrast">HC</button>
   </header>
 
   <noscript>
     <div class="noscript">This site requires JavaScript to load the catalog. Please enable JavaScript.</div>
   </noscript>
-
-  <div id="dashboard">
-    <!-- Left panel: Indicators -->
-    <aside id="indicator-list" role="navigation" aria-label="Indicators">
-      <!-- Category Filter -->
+    <!-- Topbar: global filters/search -->
+    <div id="topbar" role="region" aria-label="Filters and search">
       <div id="category-filter">
         <label for="category-select">Filter by category:</label>
         <div class="filter-row">
@@ -33,13 +33,21 @@
           </select>
           <button id="clear-filter" class="btn btn-secondary" type="button" aria-label="Clear category filter">Clear</button>
         </div>
-
-        <label for="indicator-search" class="sr-only">Search indicators</label>
-        <div class="search-box">
-          <input id="indicator-search" type="search" placeholder="Search indicators" autocomplete="off" aria-label="Search indicators" />
-          <button id="clear-search" class="icon-btn" type="button" aria-label="Clear search">×</button>
-        </div>
       </div>
+
+      <div class="topbar-spacer"></div>
+
+      <div class="search-box">
+        <label for="indicator-search" class="sr-only">Search indicators</label>
+        <input id="indicator-search" type="search" placeholder="Search indicators" autocomplete="off" aria-label="Search indicators" />
+        <button id="clear-search" class="icon-btn" type="button" aria-label="Clear search">×</button>
+      </div>
+    </div>
+
+  <div id="dashboard">
+    <!-- Left panel: Indicators -->
+    <aside id="indicator-list" role="navigation" aria-label="Indicators">
+  <div id="category-legend" aria-label="Quick category filters"></div>
       <div id="indicator-buttons"></div>
   </aside>
 

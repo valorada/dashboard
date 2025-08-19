@@ -14,6 +14,9 @@ const copyLinkBtn = document.getElementById('copy-link-btn');
 const liveRegion = document.getElementById('live-region');
 const statIndicatorsEl = document.getElementById('stat-indicators');
 const statDatasetsEl = document.getElementById('stat-datasets');
+const themeToggleBtn = document.getElementById('theme-toggle');
+const hcToggleBtn = document.getElementById('hc-toggle');
+const legendEl = document.getElementById('category-legend');
 
 let catalog = [];
 let selectedIndicatorId = null;
@@ -47,9 +50,13 @@ function formatDescription(text) {
 
 function renderDatasetDetails(ds) {
   const link = pickDatasetUrl(ds);
+  const tags = [];
+  if (ds.license) tags.push(`<span class="tag tag--license" title="License">${escapeHtml(ds.license)}</span>`);
+  // If category or other domain tags are present you can push more here.
   datasetDetailsEl.innerHTML = `
     <p><strong>ID:</strong> ${safe(ds.id)}</p>
     <p><strong>Name:</strong> ${safe(ds.name)}</p>
+    ${tags.length ? `<div class="tags">${tags.join('')}</div>` : ''}
     ${section('Description', formatDescription(ds.description))}
     ${section('Source', formatDescription(ds.source))}
     ${section('Citation', formatDescription(ds.citation))}
@@ -86,7 +93,7 @@ function renderDatasets(ind) {
     li.setAttribute('role', 'button');
     li.setAttribute('aria-label', `${ds.name} details`);
     if (selectedDatasetId === ds.id) li.classList.add('selected');
-    li.onclick = () => {
+  li.onclick = () => {
       datasetListEl.querySelectorAll('.selected').forEach(n => n.classList.remove('selected'));
       li.classList.add('selected');
       renderDatasetDetails(ds);
@@ -95,7 +102,7 @@ function renderDatasets(ind) {
     datasetListEl.appendChild(li);
   });
 
-  datasetDetailsEl.textContent = 'Select a dataset to see details';
+  datasetDetailsEl.innerHTML = `<div class="empty-state fade-in"><span class="emoji">🛈</span>Select a dataset to see details</div>`;
 }
 
 function highlightSelectedIndicator() {
@@ -163,6 +170,9 @@ function renderCategoryFilter() {
     clearSearchBtn.disabled = !searchQuery;
   }
 
+  // Category legend render
+  renderCategoryLegend(categories);
+
   // Initial stats update after filter wiring
   updateHeaderStats();
 }
@@ -182,6 +192,7 @@ function getFilteredIndicators() {
 
 function renderIndicators() {
   indicatorButtonsEl.innerHTML = '';
+  indicatorButtonsEl.style.opacity = '0';
   const filteredIndicators = getFilteredIndicators();
 
   // Update header stats on each render
@@ -216,7 +227,11 @@ function renderIndicators() {
   // Assign category color to left border
   const catColor = getCategoryColor(ind.category);
   btn.style.setProperty('--cat-color', catColor);
-    btn.onclick = () => renderDatasets(ind);
+    btn.onclick = () => {
+      btn.classList.add('press');
+      setTimeout(() => btn.classList.remove('press'), 120);
+      renderDatasets(ind);
+    };
     btn.onkeydown = e => { if(e.key === 'Enter' || e.key === ' ') { renderDatasets(ind); } };
     indicatorButtonsEl.appendChild(btn);
   });
@@ -226,6 +241,8 @@ function renderIndicators() {
   if (!filteredIndicators.find(i => i.id === selectedIndicatorId)) {
     renderDatasets(filteredIndicators[0]);
   }
+  // micro fade-in
+  requestAnimationFrame(() => { indicatorButtonsEl.style.opacity = '1'; });
 }
 
 function updateHeaderStats(filtered = null) {
@@ -235,6 +252,29 @@ function updateHeaderStats(filtered = null) {
   const datasetCount = list.reduce((acc, ind) => acc + (ind.datasets ? ind.datasets.length : 0), 0);
   statIndicatorsEl.textContent = String(indicatorCount);
   statDatasetsEl.textContent = String(datasetCount);
+}
+
+function renderCategoryLegend(categories) {
+  if (!legendEl) return;
+  legendEl.innerHTML = '';
+  categories.forEach(cat => {
+    const chip = document.createElement('button');
+    chip.className = 'legend-chip';
+    chip.style.setProperty('--cat-color', getCategoryColor(cat));
+    chip.title = `Filter by ${cat}`;
+    const dot = document.createElement('span');
+    dot.className = 'legend-dot';
+    const label = document.createElement('span');
+    label.textContent = cat;
+    chip.appendChild(dot);
+    chip.appendChild(label);
+    chip.onclick = () => {
+      selectedCategory = (selectedCategory === cat) ? '' : cat;
+      renderCategoryFilter();
+      renderIndicators();
+    };
+    legendEl.appendChild(chip);
+  });
 }
 
 function updateHash() {
@@ -482,3 +522,38 @@ fetch('catalog.json', { cache: 'no-cache' })
 if (copyLinkBtn) {
   copyLinkBtn.onclick = copyDeepLink;
 }
+
+// Theme toggle
+(function initTheme() {
+  const KEY = 'dashboard.theme.v1';
+  const root = document.documentElement;
+  const pref = localStorage.getItem(KEY);
+  if (pref === 'dark' || (!pref && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    root.setAttribute('data-theme', 'dark');
+    if (themeToggleBtn) themeToggleBtn.textContent = '☀️';
+  }
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = root.getAttribute('data-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      if (next === 'dark') root.setAttribute('data-theme', 'dark'); else root.removeAttribute('data-theme');
+      localStorage.setItem(KEY, next);
+      themeToggleBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+  }
+})();
+
+// High-contrast toggle
+(function initHighContrast() {
+  const KEY = 'dashboard.hc.v1';
+  const root = document.documentElement;
+  const pref = localStorage.getItem(KEY);
+  if (pref === 'on') root.setAttribute('data-hc', 'on');
+  if (hcToggleBtn) {
+    hcToggleBtn.addEventListener('click', () => {
+      const isOn = root.getAttribute('data-hc') === 'on';
+      if (isOn) root.removeAttribute('data-hc'); else root.setAttribute('data-hc', 'on');
+      localStorage.setItem(KEY, isOn ? 'off' : 'on');
+    });
+  }
+})();

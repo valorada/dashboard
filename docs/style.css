@@ -1,12 +1,46 @@
+/* Theme variables */
+:root {
+  --bg: #f9faff;
+  --panel: #ffffff;
+  --text: #333;
+  --text-strong: #003366;
+  --muted: #b0b8d4;
+  --accent: #003366;
+  --accent-soft: #f6f8ff;
+  --accent-soft-2: #e6ecff;
+  --accent-soft-3: #d0e0ff;
+  --accent-soft-4: #c0d2ff;
+  --gutter: #dfe3f0;
+  --gutter-hover: #aab2cc;
+}
+
+[data-theme="dark"] {
+  --bg: #0f1425;
+  --panel: #161c2f;
+  --text: #e8ecfa;
+  --text-strong: #c9d8ff;
+  --muted: #6b78a8;
+  --accent: #c9d8ff;
+  --accent-soft: #1c2542;
+  --accent-soft-2: #233056;
+  --accent-soft-3: #2a3a68;
+  --accent-soft-4: #31467d;
+  --gutter: #2a3352;
+  --gutter-hover: #3b4975;
+}
+
 /* Reset some basics */
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f9faff;
-  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji';
+  background: var(--bg);
+  color: var(--text);
   height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 header {
@@ -22,6 +56,22 @@ header {
   align-items: center;
   gap: 1rem; /* space between logo and text */
 }
+/* Topbar (global filters/search) */
+#topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: end;
+  gap: 1rem;
+  padding: 0.75rem 2rem 0.25rem;
+  background: var(--bg);
+  border-bottom: 1px solid #e0e4f1;
+}
+
+
+
+#topbar #category-filter { margin: 0; padding: 0; border: 0; }
+#topbar .search-box { margin: 0; }
+
 
 #logo {
   height: 64px; /* more compact header */
@@ -42,6 +92,53 @@ header {
   margin-right: 0.25rem;
 }
 
+/* Category legend */
+#category-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid #d0d7e6;
+  background: var(--panel);
+  color: var(--text-strong);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cat-color, #bcd5ff);
+}
+
+.legend-chip:hover,
+.legend-chip:focus {
+  background: var(--accent-soft);
+}
+
+/* High-contrast focus mode */
+[data-hc="on"] :focus-visible {
+  outline: 3px solid #ffcc33;
+  outline-offset: 3px;
+}
+
+/* Subtle elevation on hover for panels */
+#indicator-list:hover,
+#dataset-list:hover,
+#dataset-details:hover {
+  box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+  transition: box-shadow 200ms ease;
+}
+
 /* Dashboard container */
 #dashboard {
   --col-left: 260px;
@@ -54,19 +151,21 @@ header {
   grid-template-columns: var(--col-left) var(--gutter-size) var(--col-middle) var(--gutter-size) var(--col-right);
   gap: var(--gap);
   padding: 1.5rem 2rem;
-  background: #f9faff;
+  background: var(--bg);
   overflow: hidden;
+  transition: background-color 200ms ease;
 }
 
 /* Shared panel styling */
 #indicator-list, #dataset-list, #dataset-details {
-  background: white;
+  background: var(--panel);
   border-radius: 10px;
   box-shadow: 0 6px 15px rgba(0,0,0,0.08);
   padding: 1.5rem 1.8rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 /* Gutter (resizer) */
@@ -84,14 +183,14 @@ header {
   left: 50%;
   transform: translateX(-50%);
   width: 4px;
-  background: #dfe3f0;
+  background: var(--gutter);
   border-radius: 2px;
 }
 
 .gutter:hover::after,
 .gutter:focus::after,
 .gutter.dragging::after {
-  background: #aab2cc;
+  background: var(--gutter-hover);
 }
 
 .gutter:hover,
@@ -119,7 +218,7 @@ header {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #003366;
+  color: var(--text-strong);
   font-size: 0.9rem;
 }
 
@@ -136,7 +235,7 @@ header {
   border: 1px solid #d0d7e6;
   border-radius: 4px;
   background: white;
-  color: #003366; /* will be overridden inline per selection */
+  color: var(--text-strong); /* overridden inline per selection */
   font-size: 0.9rem;
   cursor: pointer;
 }
@@ -150,19 +249,20 @@ header {
 .btn {
   padding: 0.5rem 0.75rem;
   border: 1px solid #d0d7e6;
-  background: #f6f8ff;
-  color: #003366;
+  background: var(--accent-soft);
+  color: var(--text-strong);
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
 
 .btn:hover, .btn:focus {
-  background: #e6ecff;
+  background: var(--accent-soft-2);
 }
 
 .btn.btn-secondary {
-  background: #ffffff;
+  background: var(--panel);
 }
 
 .search-box {
@@ -177,21 +277,26 @@ header {
   border: 1px solid #d0d7e6;
   border-radius: 4px;
   font-size: 0.9rem;
+  background: var(--panel);
+  color: var(--text);
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
 
 .icon-btn {
   border: 1px solid #d0d7e6;
-  background: #fff;
+  background: var(--panel);
   border-radius: 6px;
   width: 34px;
   height: 34px;
   font-size: 1.1rem;
   line-height: 1;
   cursor: pointer;
+  color: var(--text-strong);
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
 
 .icon-btn:hover, .icon-btn:focus {
-  background: #f6f8ff;
+  background: var(--accent-soft);
 }
 
 #indicator-list button {
@@ -202,7 +307,7 @@ header {
   margin-bottom: 0.8rem;
   text-align: left;
   font-weight: 600;
-  color: #003366;
+  color: var(--text-strong);
   cursor: pointer;
   transition: background-color 0.25s ease;
   border-left: 6px solid var(--cat-color, #bcd5ff);
@@ -216,20 +321,20 @@ header {
   min-width: 1.5rem;
   padding: 0.1rem 0.4rem;
   border-radius: 999px;
-  background: #e6ecff;
-  color: #003366;
+  background: var(--accent-soft-2);
+  color: var(--text-strong);
   font-size: 0.75rem;
   font-weight: 700;
 }
 
 #indicator-list button:hover,
 #indicator-list button:focus {
-  background: #d0e0ff;
+  background: var(--accent-soft-3);
   outline: none;
 }
 
 #indicator-list button.selected {
-  background: #c0d2ff;
+  background: var(--accent-soft-4);
   box-shadow: inset 0 0 0 2px #00336622;
 }
 
@@ -238,7 +343,7 @@ header {
   margin-top: 0;
   margin-bottom: 1rem;
   font-weight: 700;
-  color: #003366;
+  color: var(--text-strong);
   border-bottom: 2px solid #003366;
   padding-bottom: 0.3rem;
 }
@@ -277,18 +382,18 @@ header {
   cursor: pointer;
   border-radius: 6px;
   transition: background-color 0.25s ease;
-  color: #003366;
+  color: var(--text-strong);
   font-weight: 600;
 }
 
 #dataset-list li:hover,
 #dataset-list li:focus {
-  background: #e6ecff;
+  background: var(--accent-soft-2);
   outline: none;
 }
 
 #dataset-list li.selected {
-  background: #dbe5ff;
+  background: var(--accent-soft-3);
 }
 
 /* Dataset details content */
@@ -296,7 +401,7 @@ header {
   margin: 0.5rem 0;
   line-height: 1.4;
   font-size: 0.95rem;
-  color: #222;
+  color: var(--text);
 }
 
 #details-content a {
@@ -307,6 +412,67 @@ header {
 
 #details-content a:hover {
   text-decoration: underline;
+}
+
+/* Tag pills */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid var(--muted);
+  background: var(--accent-soft);
+  color: var(--text-strong);
+}
+
+.tag--license {
+  background: color-mix(in srgb, #8fd18f 25%, var(--panel));
+  border-color: color-mix(in srgb, #4caf50 50%, var(--muted));
+}
+
+.tag--domain {
+  background: color-mix(in srgb, #9ecbff 25%, var(--panel));
+  border-color: color-mix(in srgb, #3f7cff 50%, var(--muted));
+}
+
+/* Empty state */
+.empty-state {
+  background: var(--panel);
+  border: 1px dashed var(--muted);
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: center;
+  color: var(--text);
+}
+.empty-state .emoji {
+  font-size: 1.6rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* Micro animations */
+.fade-in {
+  animation: fadeIn 160ms ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Press effect on indicator buttons */
+#indicator-list button:active,
+#indicator-list button.press {
+  transform: scale(0.99);
 }
 
 .sr-only {
@@ -337,12 +503,12 @@ header {
 #indicator-list::-webkit-scrollbar-thumb,
 #dataset-list::-webkit-scrollbar-thumb,
 #dataset-details::-webkit-scrollbar-thumb {
-  background-color: #b0b8d4;
+  background-color: var(--muted);
   border-radius: 4px;
 }
 
 #indicator-list::-webkit-scrollbar-track,
 #dataset-list::-webkit-scrollbar-track,
 #dataset-details::-webkit-scrollbar-track {
-  background: #f9faff;
+  background: var(--bg);
 }
