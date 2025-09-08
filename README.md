@@ -59,3 +59,11 @@ python3 code/generate_catalog.py
 ```
 
 This script fetches the CSVs from GitHub, builds the combined structure, and overwrites `docs/catalog.json`.
+
+## Acknowledgments
+
+We acknowledge the use of GitHub Copilot, an AI-based code completion tool, which assisted in the development of the code used in this research.
+
+## References
+
+GitHub Copilot. GitHub, Inc. Available at: https://github.com/features/copilot
