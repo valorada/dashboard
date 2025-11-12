@@ -1,7 +1,6 @@
 const indicatorListEl = document.getElementById('indicator-list');
 const indicatorButtonsEl = document.getElementById('indicator-buttons');
-const categorySelectEl = document.getElementById('category-select');
-const clearFilterBtn = document.getElementById('clear-filter');
+// Removed category filter elements
 const searchInputEl = document.getElementById('indicator-search');
 const clearSearchBtn = document.getElementById('clear-search');
 const indicatorDetailsEl = document.getElementById('dataset-list');
@@ -16,12 +15,18 @@ const statIndicatorsEl = document.getElementById('stat-indicators');
 const statDatasetsEl = document.getElementById('stat-datasets');
 const themeToggleBtn = document.getElementById('theme-toggle');
 const hcToggleBtn = document.getElementById('hc-toggle');
-const legendEl = document.getElementById('category-legend');
+const cicCheckboxesEl = document.getElementById('cic-checkboxes');
+const cicClearBtn = document.getElementById('cic-clear');
+const cicMatchAllEl = document.getElementById('cic-match-all');
 
-let catalog = [];
+// Catalog structure (new): { generated_at, indicators: [...], cics: [...] }
+let catalogObj = null;
+let catalog = []; // indicators
+let cics = []; // cic objects
 let selectedIndicatorId = null;
 let selectedDatasetId = null;
-let selectedCategory = '';
+let activeCicIds = new Set(); // multi-selection
+let cicMatchAll = false; // if true require indicators to have ALL selected CICs; else ANY
 let searchQuery = '';
 
 // Resizable columns state
@@ -34,11 +39,7 @@ let colRightPx = null; // computed from container when needed
 let isDragging = false;
 let dragTarget = null; // 'g1' or 'g2'
 
-// Get unique categories from catalog
-function getCategories() {
-  const categories = [...new Set(catalog.map(ind => ind.category).filter(Boolean))];
-  return categories.sort();
-}
+// (Categories removed)
 
 // Utility: format multiline description with paragraphs
 function formatDescription(text) {
@@ -76,7 +77,20 @@ function renderDatasets(ind) {
   indicatorTitleEl.innerHTML = `${escapeHtml(ind.indicator)}${chip}`;
   const metaBits = [ ind.id ? `ID: ${ind.id}` : null ].filter(Boolean).join(' • ');
   indicatorIdEl.textContent = metaBits;
-  indicatorDescEl.innerHTML = formatDescription(ind.description);
+  // CIC chips row
+  const cicRow = (ind.cic_ids || []).map(cid => {
+    const cic = cics.find(c => c.id === cid);
+    if (!cic) {
+      return `<button class="cic-chip" data-cic="${escapeHtml(cid)}" title="Filter by impact chain">${escapeHtml(cid)}</button>`;
+    }
+    const desc = collapseWhitespace(cic.description || cic.impact || '');
+    const area = cic.area || '';
+    const label = `${cic.id}: ${desc}${area ? ` (${area})` : ''}`;
+    const areaClass = area ? ` area-${escapeHtml(area)}` : '';
+    return `<button class="cic-chip${areaClass}" data-cic="${escapeHtml(cid)}" title="Filter by impact chain">${escapeHtml(label)}</button>`;
+  }).join(' ');
+  const cicHtml = cicRow ? `<div class="cic-chip-row">${cicRow}</div>` : '';
+  indicatorDescEl.innerHTML = formatDescription(ind.description) + cicHtml;
 
   // Update selected indicator state
   selectedIndicatorId = ind.id;
@@ -113,43 +127,7 @@ function highlightSelectedIndicator() {
   });
 }
 
-function renderCategoryFilter() {
-  const categories = getCategories();
-  categorySelectEl.innerHTML = '<option value="">All categories</option>';
-  categories.forEach(category => {
-    const option = document.createElement('option');
-    option.value = category;
-    // Prefix with a colored bullet for category
-    option.textContent = `\u25CF ${category}`; // ●
-    option.style.color = getCategoryColor(category);
-    if (category === selectedCategory) option.selected = true;
-    categorySelectEl.appendChild(option);
-  });
-
-  categorySelectEl.onchange = () => {
-    selectedCategory = categorySelectEl.value;
-    // Set the select text color to the selected category color (or default)
-    const selColor = selectedCategory ? getCategoryColor(selectedCategory) : '';
-    categorySelectEl.style.color = selColor;
-    renderIndicators();
-    if (clearFilterBtn) clearFilterBtn.disabled = !selectedCategory;
-  };
-
-  if (clearFilterBtn) {
-    clearFilterBtn.onclick = () => {
-      selectedCategory = '';
-      categorySelectEl.value = '';
-      categorySelectEl.style.color = '';
-      renderIndicators();
-      clearFilterBtn.disabled = true;
-    };
-  }
-
-  // Initialize select color based on current selection
-  const initColor = selectedCategory ? getCategoryColor(selectedCategory) : '';
-  categorySelectEl.style.color = initColor;
-  if (clearFilterBtn) clearFilterBtn.disabled = !selectedCategory;
-
+function initGlobalInputs() {
   // Search wiring
   if (searchInputEl) {
     searchInputEl.value = searchQuery;
@@ -169,17 +147,26 @@ function renderCategoryFilter() {
     };
     clearSearchBtn.disabled = !searchQuery;
   }
-
-  // Category legend render
-  renderCategoryLegend(categories);
-
-  // Initial stats update after filter wiring
+  renderCicMulti();
   updateHeaderStats();
 }
 
 function getFilteredIndicators() {
   let list = catalog;
-  if (selectedCategory) list = list.filter(ind => ind.category === selectedCategory);
+  if (activeCicIds.size) {
+    list = list.filter(ind => {
+      const ids = ind.cic_ids || [];
+      if (!ids.length) return false;
+      if (cicMatchAll) {
+        // every selected must be present
+        for (const sel of activeCicIds) if (!ids.includes(sel)) return false;
+        return true;
+      } else {
+        // any selected present
+        return ids.some(id => activeCicIds.has(id));
+      }
+    });
+  }
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
     list = list.filter(ind =>
@@ -254,35 +241,70 @@ function updateHeaderStats(filtered = null) {
   statDatasetsEl.textContent = String(datasetCount);
 }
 
-function renderCategoryLegend(categories) {
-  if (!legendEl) return;
-  legendEl.innerHTML = '';
-  categories.forEach(cat => {
-    const chip = document.createElement('button');
-    chip.className = 'legend-chip';
-    chip.style.setProperty('--cat-color', getCategoryColor(cat));
-    chip.title = `Filter by ${cat}`;
-    const dot = document.createElement('span');
-    dot.className = 'legend-dot';
-    const label = document.createElement('span');
-    label.textContent = cat;
-    chip.appendChild(dot);
-    chip.appendChild(label);
-    chip.onclick = () => {
-      selectedCategory = (selectedCategory === cat) ? '' : cat;
-      renderCategoryFilter();
+// Category legend removed
+
+function renderCicMulti() {
+  if (!cics.length || !cicCheckboxesEl) return;
+  cicCheckboxesEl.innerHTML = '';
+  // Sort by CIC id (numeric aware)
+  const sorted = [...cics].sort((a,b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
+  sorted.forEach(c => {
+    const id = c.id;
+    const desc = collapseWhitespace(c.description || c.impact || '');
+    const area = c.area || '';
+    const labelText = `${id}: ${desc}${area ? ` (${area})` : ''}`;
+    const wrapper = document.createElement('label');
+    const areaClass = area ? ` area-${area}` : '';
+    wrapper.className = `cic-item${areaClass}`;
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.value = id;
+    cb.checked = activeCicIds.has(id);
+    cb.onchange = () => {
+      if (cb.checked) activeCicIds.add(id); else activeCicIds.delete(id);
       renderIndicators();
+      updateHash();
+      syncCicControls();
     };
-    legendEl.appendChild(chip);
+    const span = document.createElement('span');
+    span.textContent = labelText;
+    wrapper.appendChild(cb);
+    wrapper.appendChild(span);
+    cicCheckboxesEl.appendChild(wrapper);
   });
+  if (cicClearBtn) cicClearBtn.disabled = activeCicIds.size === 0;
+  if (cicClearBtn) cicClearBtn.onclick = () => {
+    activeCicIds.clear();
+    renderIndicators();
+    updateHash();
+    syncCicControls();
+  };
+  if (cicMatchAllEl) {
+    cicMatchAllEl.checked = cicMatchAll;
+    cicMatchAllEl.onchange = () => {
+      cicMatchAll = cicMatchAllEl.checked;
+      renderIndicators();
+      updateHash();
+    };
+  }
+}
+
+function syncCicControls() {
+  // refresh checkbox states & clear button
+  document.querySelectorAll('#cic-checkboxes input[type=checkbox]').forEach(cb => {
+    cb.checked = activeCicIds.has(cb.value);
+  });
+  if (cicClearBtn) cicClearBtn.disabled = activeCicIds.size === 0;
 }
 
 function updateHash() {
   const parts = [];
   if (selectedIndicatorId) parts.push(`indicator=${encodeURIComponent(selectedIndicatorId)}`);
   if (selectedDatasetId) parts.push(`dataset=${encodeURIComponent(selectedDatasetId)}`);
+  if (activeCicIds.size) parts.push(`cic=${encodeURIComponent([...activeCicIds].join(','))}`);
+  if (cicMatchAll) parts.push('mode=all');
   const hash = parts.join('&');
-  if (hash) window.location.hash = hash; else window.location.hash = '';
+  window.location.hash = hash || '';
 }
 
 function applyHash() {
@@ -290,28 +312,24 @@ function applyHash() {
   const params = new URLSearchParams(hash);
   const indId = params.get('indicator');
   const dsId = params.get('dataset');
+  const cicParam = params.get('cic');
+  const mode = params.get('mode');
   if (!catalog.length) return;
-
-  let ind = catalog.find(i => i.id === indId);
-  if (ind) {
-    // If the indicator exists, check if we need to update the category filter
-    if (selectedCategory && ind.category !== selectedCategory) {
-      selectedCategory = ind.category;
-      renderCategoryFilter();
-      renderIndicators();
-    }
-  } else {
-    // Fallback to first available indicator (considering filter)
-    const filteredIndicators = getFilteredIndicators();
-    ind = filteredIndicators[0] || catalog[0];
+  cicMatchAll = mode === 'all';
+  activeCicIds.clear();
+  if (cicParam) {
+    cicParam.split(',').forEach(id => { if (id) activeCicIds.add(id); });
   }
-
+  const filteredIndicators = getFilteredIndicators();
+  let ind = filteredIndicators.find(i => i.id === indId) || filteredIndicators[0] || catalog[0];
   selectedDatasetId = dsId || null;
   if (ind) renderDatasets(ind);
   if (selectedDatasetId && ind && ind.datasets) {
     const ds = ind.datasets.find(d => d.id === selectedDatasetId);
     if (ds) renderDatasetDetails(ds);
   }
+  bindCicChipHandlers();
+  renderCicMulti(); // sync checkboxes
 }
 
 // Helpers
@@ -376,6 +394,26 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function bindCicChipHandlers() {
+  document.querySelectorAll('.cic-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const cid = chip.getAttribute('data-cic');
+      if (activeCicIds.has(cid)) activeCicIds.delete(cid); else activeCicIds.add(cid);
+      renderIndicators();
+      updateHash();
+      renderCicMulti();
+    });
+  });
+  document.querySelectorAll('.cic-chip').forEach(chip => {
+    const cid = chip.getAttribute('data-cic');
+    chip.classList.toggle('active', activeCicIds.has(cid));
+  });
+}
+
+function collapseWhitespace(str) {
+  return String(str).replace(/\s+/g, ' ').trim();
 }
 
 // ========== Resizable columns ==========
@@ -502,15 +540,22 @@ fetch('catalog.json', { cache: 'no-cache' })
     return res.json();
   })
   .then(data => {
-    if (!Array.isArray(data)) throw new Error('Catalog format invalid');
-    catalog = data;
-  initResizers();
-    renderCategoryFilter();
+    if (Array.isArray(data)) {
+      catalogObj = { generated_at: null, indicators: data, cics: [] };
+    } else if (data && Array.isArray(data.indicators)) {
+      catalogObj = data;
+    } else {
+      throw new Error('Catalog format invalid');
+    }
+    catalog = catalogObj.indicators || [];
+    cics = catalogObj.cics || [];
+    initResizers();
+    initGlobalInputs();
     renderIndicators();
-    // Apply deep link if present, else select first indicator by default
     if (window.location.hash) applyHash();
     else if (catalog[0]) renderDatasets(catalog[0]);
     window.addEventListener('hashchange', applyHash);
+    bindCicChipHandlers();
   })
   .catch(err => {
     indicatorListEl.textContent = 'Failed to load catalog.';

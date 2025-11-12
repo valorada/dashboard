@@ -25,15 +25,14 @@
   </noscript>
     <!-- Topbar: global filters/search -->
     <div id="topbar" role="region" aria-label="Filters and search">
-      <div id="category-filter">
-        <label for="category-select">Filter by category:</label>
-        <div class="filter-row">
-          <select id="category-select" aria-label="Category filter">
-            <option value="">All categories</option>
-          </select>
-          <button id="clear-filter" class="btn btn-secondary" type="button" aria-label="Clear category filter">Clear</button>
+      <fieldset id="cic-multi" aria-label="Select impact chains">
+        <legend>Impact chains</legend>
+        <div id="cic-checkboxes"></div>
+        <div class="cic-actions">
+          <button id="cic-clear" type="button" class="btn btn-secondary" disabled>Clear</button>
+          <label class="match-mode"><input type="checkbox" id="cic-match-all" /> Match all</label>
         </div>
-      </div>
+      </fieldset>
 
       <div class="topbar-spacer"></div>
 
@@ -46,8 +45,7 @@
 
   <div id="dashboard">
     <!-- Left panel: Indicators -->
-    <aside id="indicator-list" role="navigation" aria-label="Indicators">
-  <div id="category-legend" aria-label="Quick category filters"></div>
+  <aside id="indicator-list" role="navigation" aria-label="Indicators">
       <div id="indicator-buttons"></div>
   </aside>
 

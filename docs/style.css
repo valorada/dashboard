@@ -1,3 +1,192 @@
+#cic-multi {
+  border: 1px solid #d0d7e6;
+  padding: 0.75rem 1rem 0.9rem;
+  border-radius: 8px;
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 280px;
+}
+
+#cic-multi legend {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-strong);
+  padding: 0 0.4rem;
+}
+
+#cic-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.4rem 0.75rem;
+  max-height: 180px;
+  overflow: auto;
+}
+
+#cic-checkboxes label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  cursor: pointer;
+  background: var(--accent-soft);
+  padding: 0.25rem 0.45rem;
+  border-radius: 6px;
+  border: 1px solid var(--muted);
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+#cic-checkboxes label.area-Urban {
+  background: #e3e6eb;
+  border-color: #5a6472;
+  color: #28313d;
+}
+#cic-checkboxes label.area-Urban:hover {
+  background: #d5dae1;
+  border-color: #3d4652;
+}
+#cic-checkboxes label.area-Rural {
+  background: #efe4d6;
+  border-color: #b0753b;
+  color: #3c2a18;
+}
+#cic-checkboxes label.area-Rural:hover {
+  background: #e5d6c5;
+  border-color: #8a5724;
+}
+
+[data-theme="dark"] #cic-checkboxes label.area-Urban {
+  background: color-mix(in srgb, #5a6472 35%, var(--panel));
+  border-color: #5a6472;
+  color: #d7dde4;
+}
+[data-theme="dark"] #cic-checkboxes label.area-Urban:hover {
+  background: color-mix(in srgb, #5a6472 55%, var(--panel));
+}
+[data-theme="dark"] #cic-checkboxes label.area-Rural {
+  background: color-mix(in srgb, #b0753b 35%, var(--panel));
+  border-color: #b0753b;
+  color: #f0e9e2;
+}
+[data-theme="dark"] #cic-checkboxes label.area-Rural:hover {
+  background: color-mix(in srgb, #b0753b 55%, var(--panel));
+}
+
+#cic-checkboxes label:hover { background: var(--accent-soft-2); }
+
+#cic-checkboxes input[type=checkbox] { margin-top: 0.1rem; }
+
+.cic-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.match-mode {
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+#cic-filter label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  font-size: 0.9rem;
+}
+
+#cic-select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d0d7e6;
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+#cic-select:focus {
+  outline: 2px solid #003366;
+  outline-offset: 2px;
+}
+
+.cic-chip-row {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.cic-chip {
+  background: var(--accent-soft);
+  border: 1px solid var(--muted);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--text-strong);
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+
+.cic-chip:hover,
+.cic-chip:focus {
+  background: var(--accent-soft-2);
+  outline: none;
+}
+
+.cic-chip.active {
+  background: var(--accent-soft-3);
+  border-color: var(--text-strong);
+}
+
+/* Area colors */
+/* Distinct palette: Urban (neutral concrete greys) / Rural (earth brown) */
+.cic-chip.area-Urban {
+  background: #e3e6eb; /* light neutral */
+  border-color: #5a6472; /* medium slate */
+  color: #28313d;
+}
+.cic-chip.area-Urban:hover,
+.cic-chip.area-Urban.active {
+  background: #d5dae1; /* slightly darker for hover/active */
+  border-color: #3d4652; /* deepen border */
+}
+.cic-chip.area-Rural {
+  background: #efe4d6; /* light earth */
+  border-color: #b0753b; /* warm brown */
+  color: #3c2a18;
+}
+.cic-chip.area-Rural:hover,
+.cic-chip.area-Rural.active {
+  background: #e5d6c5; /* darker hover */
+  border-color: #8a5724;
+}
+
+/* Dark theme adjustments for area chips */
+[data-theme="dark"] .cic-chip.area-Urban {
+  background: color-mix(in srgb, #5a6472 35%, var(--panel));
+  border-color: #5a6472;
+  color: #d7dde4;
+}
+[data-theme="dark"] .cic-chip.area-Urban:hover,
+[data-theme="dark"] .cic-chip.area-Urban.active {
+  background: color-mix(in srgb, #5a6472 55%, var(--panel));
+}
+[data-theme="dark"] .cic-chip.area-Rural {
+  background: color-mix(in srgb, #b0753b 35%, var(--panel));
+  border-color: #b0753b;
+  color: #f0e9e2;
+}
+[data-theme="dark"] .cic-chip.area-Rural:hover,
+[data-theme="dark"] .cic-chip.area-Rural.active {
+  background: color-mix(in srgb, #b0753b 55%, var(--panel));
+}
 /* Theme variables */
 :root {
   --bg: #f9faff;
