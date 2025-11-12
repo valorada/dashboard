@@ -234,24 +234,23 @@ body {
 
 header {
   background: #003366;
-  color: rgb(255, 255, 255);
-  padding: 1.2rem 2rem;
+  color: #fff;
+  padding: 0.45rem 1.1rem;
   font-weight: 600;
-  font-size: 1.5rem;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-
-  /* Flex layout */
+  font-size: 1.05rem;
+  line-height: 1.15;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
   display: flex;
   align-items: center;
-  gap: 1rem; /* space between logo and text */
+  gap: 0.65rem;
 }
 /* Topbar (global filters/search) */
 #topbar {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  align-items: end;
-  gap: 1rem;
-  padding: 0.75rem 2rem 0.25rem;
+  align-items: start;
+  gap: 0.9rem;
+  padding: 0.4rem 1.1rem 0.3rem;
   background: var(--bg);
   border-bottom: 1px solid #e0e4f1;
 }
@@ -263,7 +262,7 @@ header {
 
 
 #logo {
-  height: 64px; /* more compact header */
+  height: 38px;
   width: auto;
 }
 
@@ -271,14 +270,16 @@ header {
 #header-stats {
   margin-left: auto;
   display: flex;
-  gap: 1rem;
-  align-items: baseline;
-  font-size: 0.95rem;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.7rem;
+  line-height: 1;
 }
 
 #header-stats .stat strong {
-  font-size: 1.05rem;
-  margin-right: 0.25rem;
+  font-size: 0.85rem;
+  margin-right: 0.15rem;
+  font-weight: 700;
 }
 
 /* Category legend */
@@ -474,10 +475,10 @@ header {
 .icon-btn {
   border: 1px solid #d0d7e6;
   background: var(--panel);
-  border-radius: 6px;
-  width: 34px;
-  height: 34px;
-  font-size: 1.1rem;
+  border-radius: 5px;
+  width: 28px;
+  height: 28px;
+  font-size: 0.85rem;
   line-height: 1;
   cursor: pointer;
   color: var(--text-strong);
