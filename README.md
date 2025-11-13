@@ -90,7 +90,7 @@ After regeneration:
 
 ## Acknowledgments
 
-We acknowledge the use of GitHub Copilot, an AI-based code completion tool, which assisted in the development of the code used in this research.
+We acknowledge the use of GitHub Copilot, an AI-based code completion tool, which assisted in the web development of the dashboard.
 
 ## References
 
